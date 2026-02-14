@@ -22,6 +22,8 @@ interface EditLicenseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  token: string | null;
+  apiBaseUrl: string;
 }
 
 export function EditLicenseDialog({
@@ -29,6 +31,8 @@ export function EditLicenseDialog({
   open,
   onOpenChange,
   onSuccess,
+  token,
+  apiBaseUrl,
 }: EditLicenseDialogProps) {
   const [loading, setLoading] = useState(false);
   const [daysToAdd, setDaysToAdd] = useState("30");
@@ -41,8 +45,17 @@ export function EditLicenseDialog({
   async function handleUpdate() {
     setLoading(true);
     try {
-      const res = await fetch("/api/licenses/update", {
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      if (token && token.length > 20) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${apiBaseUrl}/api/licenses/update`, {
         method: "POST",
+        credentials: "include",
+        headers,
         body: JSON.stringify({
           id: license?._id,
           action: "add",
@@ -69,78 +82,78 @@ export function EditLicenseDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="glass-card border-0 shadow-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-gray-800 dark:text-white">
-            Edit License Duration
+          <DialogTitle className="text-2xl font-black text-white tracking-tight">
+            Update License Duration
           </DialogTitle>
-          <DialogDescription>
-            Modify expectation date for{" "}
-            <strong className="text-indigo-600">{license.name}</strong>
+          <DialogDescription className="text-zinc-500 font-medium">
+            Masa aktif baru untuk{" "}
+            <span className="text-indigo-400 font-bold">{license.name}</span>
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-5 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right font-semibold text-gray-600">
-              Current Expiry
+            <Label className="text-right font-bold text-zinc-500 text-xs uppercase tracking-wider">
+              Expired Saat Ini
             </Label>
-            <div className="col-span-3 font-mono text-sm bg-gray-100 dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700">
+            <div className="col-span-3 font-mono text-sm bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-zinc-400">
               {format(currentExpiry, "dd MMM yyyy HH:mm")}
             </div>
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right font-semibold text-gray-600">
-              Add Days
+            <Label className="text-right font-bold text-zinc-500 text-xs uppercase tracking-wider">
+              Tambah Hari
             </Label>
-            <div className="col-span-3 flex flex-col gap-2">
+            <div className="col-span-3 flex flex-col gap-3">
               <Input
                 type="number"
                 value={daysToAdd}
                 onChange={(e) => setDaysToAdd(e.target.value)}
-                className="bg-white/50 dark:bg-black/20 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="bg-zinc-900 border-zinc-800 text-white focus:ring-2 focus:ring-indigo-500 rounded-xl h-11"
               />
               <div className="flex gap-2 flex-wrap">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDaysToAdd("30")}
-                  className="h-7 text-xs hover:bg-indigo-50 hover:text-indigo-600 border-gray-300"
-                >
-                  +30d
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDaysToAdd("-30")}
-                  className="h-7 text-xs hover:bg-red-50 hover:text-red-600 border-gray-300"
-                >
-                  -30d
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDaysToAdd("180")}
-                  className="h-7 text-xs hover:bg-indigo-50 hover:text-indigo-600 border-gray-300"
-                >
-                  +6mo
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDaysToAdd("365")}
-                  className="h-7 text-xs hover:bg-indigo-50 hover:text-indigo-600 border-gray-300"
-                >
-                  +1yr
-                </Button>
+                {[
+                  {
+                    label: "+30d",
+                    val: "30",
+                    cls: "hover:bg-indigo-500/10 hover:text-indigo-400 border-zinc-800",
+                  },
+                  {
+                    label: "-30d",
+                    val: "-30",
+                    cls: "hover:bg-red-500/10 hover:text-red-400 border-zinc-800",
+                  },
+                  {
+                    label: "+6mo",
+                    val: "180",
+                    cls: "hover:bg-indigo-500/10 hover:text-indigo-400 border-zinc-800",
+                  },
+                  {
+                    label: "+1yr",
+                    val: "365",
+                    cls: "hover:bg-indigo-500/10 hover:text-indigo-400 border-zinc-800",
+                  },
+                ].map((item) => (
+                  <Button
+                    key={item.label}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDaysToAdd(item.val)}
+                    className={`h-8 px-3 text-xs font-bold transition-all rounded-lg ${item.cls}`}
+                  >
+                    {item.label}
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right font-semibold text-gray-600">
-              New Expiry
+            <Label className="text-right font-bold text-zinc-500 text-xs uppercase tracking-wider">
+              Expiry Baru
             </Label>
-            <div className="col-span-3 font-bold text-green-600 bg-green-50 px-3 py-2 rounded-md border border-green-100 flex items-center">
+            <div className="col-span-3 font-black text-emerald-400 bg-emerald-500/5 px-4 py-3 rounded-xl border border-emerald-500/20 flex items-center shadow-[inset_0_1px_1px_rgba(16,185,129,0.1)]">
               {isValidDate(newExpiry)
                 ? format(newExpiry, "dd MMM yyyy HH:mm")
                 : "Invalid Date"}
@@ -148,21 +161,21 @@ export function EditLicenseDialog({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-3 sm:gap-0 border-t border-zinc-800 pt-6">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="border-gray-300 hover:bg-gray-100"
+            className="text-zinc-500 hover:text-white hover:bg-zinc-800 font-bold"
           >
-            Cancel
+            Batal
           </Button>
           <Button
             onClick={handleUpdate}
             disabled={loading}
-            className="bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-500/20 px-8 rounded-xl"
           >
             {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Save Changes
+            Simpan Perubahan
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,34 +1,23 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
 
 :root {
   --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  --surface-glass: rgba(255, 255, 255, 0.7);
-  --surface-glass-dark: rgba(30, 41, 59, 0.7);
+  --surface-glass: rgba(13, 13, 17, 0.7);
+  --accent-blue: #3b82f6;
+  --accent-purple: #a855f7;
 }
 
 body {
-  font-family: "Inter", sans-serif;
-  background-color: #f8fafc;
+  font-family: "Outfit", sans-serif;
+  background-color: #0c0c0e;
   background-image:
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
-    radial-gradient(
-      at 100% 100%,
-      rgba(236, 72, 153, 0.15) 0px,
-      transparent 50%
-    ),
-    radial-gradient(at 0% 100%, rgba(34, 211, 238, 0.15) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.05) 0px, transparent 100%);
   background-attachment: fixed;
   min-height: 100vh;
-  color: #0f172a;
-}
-
-.dark body {
-  background-color: #0f172a;
-  background-image:
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
   color: #f8fafc;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Animations */
@@ -43,49 +32,45 @@ body {
   }
 }
 
-@keyframes slideInRight {
+@keyframes slideInUp {
   from {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+    transform: translateY(0);
   }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
+  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-slide-in {
-  animation: slideInRight 0.5s ease-out forwards;
+.animate-slide-up {
+  animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Glassmorphism Card */
 .glass-card {
   background: var(--surface-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    0 10px 30px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
 }
 
-.dark .glass-card {
-  background: var(--surface-glass-dark);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-hover:hover {
+  background: rgba(20, 20, 25, 0.8);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.7);
+  transform: translateY(-4px);
 }
 
 /* Modern Gradient Text */
@@ -96,51 +81,34 @@ body {
   background-clip: text;
 }
 
-/* Hover Effects */
-.hover-lift {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #0c0c0e;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: #27272a;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #475569;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: #3f3f46;
 }
 
 /* Table Styling Overrides */
 .table-row-animate {
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .table-row-animate:hover {
-  background-color: rgba(99, 102, 241, 0.05) !important;
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.badge-outline-custom {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
