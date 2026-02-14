@@ -57,7 +57,7 @@ import { LoginPage } from "@/components/login-page";
 // Konfigurasi API
 // Konfigurasi API
 // Use relative path to leverage Vite proxy in dev, and same-origin in prod
-const API_BASE_URL = "";
+const API_BASE_URL = "http://3.27.212.112:3000";
 
 export default function LicensePage() {
   // State Management
@@ -65,14 +65,14 @@ export default function LicensePage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [token, setToken] = useState<string | null>(() => {
-    const t = getCookie("license_manager_token");
+    const t = getCookie("admin-session");
     console.log("Initial token from cookie:", t);
     return t;
   });
 
   // Re-check cookie on mount/focus to sync tabs or recover session
   useEffect(() => {
-    const t = getCookie("license_manager_token");
+    const t = getCookie("admin-session");
     if (t && t !== token) {
       console.log("Syncing token from cookie:", t);
       setToken(t);
@@ -90,13 +90,13 @@ export default function LicensePage() {
 
   // Auth Handlers
   const handleLogin = (newToken: string) => {
-    setCookie("license_manager_token", newToken, 7); // 7 days
+    setCookie("admin-session", newToken, 7); // 7 days
     setToken(newToken);
     toast.success("Login berhasil");
   };
 
   const handleLogout = () => {
-    eraseCookie("license_manager_token");
+    eraseCookie("admin-session");
     setToken(null);
     setLicenses([]);
     toast.info("Anda telah logout");
@@ -287,7 +287,7 @@ export default function LicensePage() {
 
   // Check auth on mount
   useEffect(() => {
-    const t = getCookie("license_manager_token");
+    const t = getCookie("admin-session");
     setToken(t);
     setIsCheckingAuth(false);
   }, []);
