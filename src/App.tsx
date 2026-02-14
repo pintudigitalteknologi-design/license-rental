@@ -57,7 +57,7 @@ import { LoginPage } from "@/components/login-page";
 // Konfigurasi API
 // Konfigurasi API
 // Use relative path to leverage Vite proxy in dev, and same-origin in prod
-const API_BASE_URL = "http://3.27.212.112:3000";
+const API_BASE_URL = "";
 
 export default function LicensePage() {
   // State Management
@@ -111,7 +111,7 @@ export default function LicensePage() {
 
       // Standardize auth header logic
       // If token is reasonably long (e.g. ID or JWT), send it.
-      if (token && token.length > 5) {
+      if (token && token !== "COOKIE_SESSION_ACTIVE") {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
@@ -125,6 +125,10 @@ export default function LicensePage() {
         toast.error("Gagal memuat data (401). Sesi mungkin berakhir.");
         // handleLogout(); // Temporarily disabled auto-logout to debug redirect loop
         return;
+      }
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
@@ -147,7 +151,7 @@ export default function LicensePage() {
     const interval = setInterval(() => {
       // Silent refresh (tanpa loading spinner penuh)
       const headers: HeadersInit = {};
-      if (token && token.length > 5) {
+      if (token && token !== "COOKIE_SESSION_ACTIVE") {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
@@ -181,7 +185,11 @@ export default function LicensePage() {
       const headers: HeadersInit = {
         "Content-Type": "application/json",
       };
-      if (token && token.length > 20) {
+      if (
+        token &&
+        token !== "COOKIE_SESSION_ACTIVE" &&
+        token !== "session_active"
+      ) {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
@@ -231,7 +239,11 @@ export default function LicensePage() {
       const headers: HeadersInit = {
         "Content-Type": "application/json",
       };
-      if (token && token.length > 20) {
+      if (
+        token &&
+        token !== "COOKIE_SESSION_ACTIVE" &&
+        token !== "session_active"
+      ) {
         headers["Authorization"] = `Bearer ${token}`;
       }
 

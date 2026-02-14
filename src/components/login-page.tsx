@@ -11,6 +11,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Lock, User, Loader2, ArrowRight } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
+import { getCookie } from "@/lib/utils";
 
 interface LoginPageProps {
   onLogin: (token: string) => void;
@@ -46,9 +47,15 @@ export function LoginPage({ onLogin, apiBaseUrl }: LoginPageProps) {
       const data = await res.json();
       console.log("Login response body:", data);
 
-      // 1. Try body candidates
+      // 1. Try body candidates with improved search
       let tokenCandidate =
-        data.token || data.accessToken || data.access_token || data.key;
+        data.token ||
+        data.accessToken ||
+        data.access_token ||
+        data.key ||
+        data.data?.token ||
+        data.data?.accessToken ||
+        data.body?.token;
 
       // 2. Try header candidates if body failed
       if (!tokenCandidate) {
@@ -60,27 +67,48 @@ export function LoginPage({ onLogin, apiBaseUrl }: LoginPageProps) {
         }
       }
 
-      // 3. Last resort: Use admin ID or session flag if success is true
-      if (!tokenCandidate && data.success) {
-        if (data.admin?.id) {
-          tokenCandidate = data.admin.id; // Use user ID as session token
-          console.log("Using admin ID as token fallback:", tokenCandidate);
+      // 3. Fallback: Removed. We expect a real token for Bearer auth.
+      // if (!tokenCandidate && data.success) { ... }
+
+      // 3. Fallback: If no token found but request was successful, assume cookie-based session
+      // 3. Fallback: If no token found but request was successful, assume cookie-based session
+      if (!tokenCandidate && res.ok) {
+        console.log(
+          "No explicit token found, but response OK. Checking for cookie...",
+        );
+        const cookieToken = getCookie("admin-session");
+        if (cookieToken) {
+          console.log("Found token via cookie:", cookieToken);
+          tokenCandidate = cookieToken;
         } else {
-          tokenCandidate = "session_active"; // Minimal session flag
-          console.log("Using generic session flag:", tokenCandidate);
+          // Only as last resort if cookie not readable, but typically this is bad state if user expects token.
+          // Leaving tokenCandidate null will trigger error below, possibly prompting manual refresh or server fix.
+          console.warn(
+            "No token in body AND no cookie found. This might be HttpOnly or cross-origin issue.",
+          );
         }
       }
 
-      if (res.ok && (tokenCandidate || data.success)) {
-        const tokenString = String(tokenCandidate || "session_active").trim();
-        console.log("Login successful. Token/Session:", tokenString);
+      if (res.ok && tokenCandidate) {
+        const tokenString = String(tokenCandidate).trim();
+        console.log("Login successful. Token:", tokenString);
         toast.success("Login berhasil!");
         onLogin(tokenString);
       } else {
         console.error("Login failed:", data);
-        toast.error(
-          `Login gagal (${res.status}): ${data.message || (typeof data === "string" ? data : JSON.stringify(data)) || "Periksa kredensial Anda."}`,
-        );
+        let errorMessage = "Login gagal.";
+        if (res.status === 404) {
+          errorMessage =
+            "Login endpoint tidak ditemukan (404). Periksa server.";
+        } else if (res.status === 401) {
+          errorMessage = "Username atau password salah.";
+        } else if (data.message) {
+          errorMessage = data.message;
+        } else if (typeof data === "string") {
+          errorMessage = data;
+        }
+
+        toast.error(`Error ${res.status}: ${errorMessage}`);
       }
     } catch (error) {
       console.error("Login error:", error);

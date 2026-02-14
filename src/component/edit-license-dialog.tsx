@@ -48,7 +48,11 @@ export function EditLicenseDialog({
       const headers: HeadersInit = {
         "Content-Type": "application/json",
       };
-      if (token && token.length > 20) {
+      if (
+        token &&
+        token !== "COOKIE_SESSION_ACTIVE" &&
+        token !== "session_active"
+      ) {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
